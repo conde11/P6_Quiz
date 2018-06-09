@@ -22,7 +22,7 @@ exports.load = (req, res, next, tipId) => {
 exports.create = (req, res, next) => {
  
     const tip = models.tip.build(
-        {
+        {   authorId: authorId,
             text: req.body.text,
             quizId: req.quiz.id
         });
