@@ -3,9 +3,9 @@ const {models} = require("../models");
 const url = require('url');
 
 
-// This variable contains the maximum inactivity time allowed without 
+// This variable contains the maximum inactivity time allowed without
 // making requests.
-// If the logged user does not make any new request during this time, 
+// If the logged user does not make any new request during this time,
 // then the user's session will be closed.
 // The value is in milliseconds.
 // 5 minutes.
@@ -61,7 +61,7 @@ exports.adminRequired = (req, res, next) => {
         next();
     } else {
         console.log('Prohibited route: the logged in user is not an administrator.');
-        res.send(403);    
+        res.send(403);
     }
 };
 
@@ -77,7 +77,7 @@ exports.adminOrMyselfRequired = (req, res, next) => {
         next();
     } else {
         console.log('Prohibited route: it is not the logged in user, nor an administrator.');
-        res.send(403);    
+        res.send(403);
     }
 };
 
@@ -100,23 +100,23 @@ exports.adminAndNotMyselfRequired = function(req, res, next){
 /*
  * User authentication: Checks that the user is registered.
  *
- * Return a Promise that searches a user with the given login, and checks that 
+ * Return a Promise that searches a user with the given login, and checks that
  * the password is correct.
  * If the authentication is correct, then the promise is satisfied and returns
  * an object with the User.
- * If the authentication fails, then the promise is also satisfied, but it
+ * If the authentication fails, then the promise is also satisfied, but it
  * returns null.
  */
 const authenticate = (login, password) => {
 
     return models.user.findOne({where: {username: login}})
-    .then(user => {
-        if (user && user.verifyPassword(password)) {
-            return user;
-        } else {
-            return null;
-        }
-    });
+        .then(user => {
+            if (user && user.verifyPassword(password)) {
+                return user;
+            } else {
+                return null;
+            }
+        });
 };
 
 
@@ -145,28 +145,28 @@ exports.create = (req, res, next) => {
     const password  = req.body.password;
 
     authenticate(login, password)
-    .then(user => {
-        if (user) {
-            // Create req.session.user and save id and username fields.
-            // The existence of req.session.user indicates that the session exists.
-            // I also save the moment when the session will expire due to inactivity.
-            req.session.user = {
-                id: user.id,
-                username: user.username,
-                isAdmin: user.isAdmin,
-                expires: Date.now() + maxIdleTime
-            };
+        .then(user => {
+            if (user) {
+                // Create req.session.user and save id and username fields.
+                // The existence of req.session.user indicates that the session exists.
+                // I also save the moment when the session will expire due to inactivity.
+                req.session.user = {
+                    id: user.id,
+                    username: user.username,
+                    isAdmin: user.isAdmin,
+                    expires: Date.now() + maxIdleTime
+                };
 
-            res.redirect(redir); 
-        } else {
-            req.flash('error', 'Authentication has failed. Retry it again.');
-            res.render('session/new', {redir});
-        }
-    })
-    .catch(error => {
-        req.flash('error', 'An error has occurred: ' + error);
-        next(error);
-    });
+                res.redirect(redir);
+            } else {
+                req.flash('error', 'Authentication has failed. Retry it again.');
+                res.render('session/new', {redir});
+            }
+        })
+        .catch(error => {
+            req.flash('error', 'An error has occurred: ' + error);
+            next(error);
+        });
 };
 
 

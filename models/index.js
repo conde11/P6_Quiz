@@ -33,14 +33,11 @@ const {quiz, tip, user} = sequelize.models;
 tip.belongsTo(quiz);
 quiz.hasMany(tip);
 
-user.hasMany(tip, {foreignKey: 'authorId'});
-quiz.belongsTo(user, {as: 'author', foreignKey: 'authorId'});
-
-
 // Relation 1-to-N between User and Quiz:
 user.hasMany(quiz, {foreignKey: 'authorId'});
 quiz.belongsTo(user, {as: 'author', foreignKey: 'authorId'});
-
+user.hasMany(tip, {foreignKey: 'authorId'});
+tip.belongsTo(user, {as: 'author', foreignKey: 'authorId'});
 
 sequelize.sync()
     .then(()=> sequelize.models.quiz.count())
@@ -66,6 +63,7 @@ sequelize.sync()
         console.log("Error creating the data base tables:", error);
         process.exit(1);
     });
+
 
 
 module.exports = sequelize;
